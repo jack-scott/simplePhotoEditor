@@ -1,4 +1,5 @@
 7/1/19
 Created the repo.
+Using python3 as python2 will not be supported beyond 2020
 Help with setup from http://zetcode.com/gui/pyqt5/
-For opening file system https://www.tutorialspoint.com/pyqt/pyqt_qfiledialog_widget.htm
+For opening file system https://pythonspot.com/pyqt5-file-dialog/ 
