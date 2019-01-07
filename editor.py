@@ -5,26 +5,24 @@
 import sys
 from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QFileDialog, QLabel, QSizePolicy
-from PyQt5.QtGui import QPainter, QImage, QPaintEvent, QPixmap
+from PyQt5.QtGui import QPainter, QImage, QPaintEvent, QPixmap, QKeyEvent
 
 class App(QWidget):
 
     def __init__(self):
         super().__init__()
+        self.mModified = True
+        self.mUpdate = False
         self.initUI()
+        self.pixmap = QPixmap(self.size())  #this creates the default pixmap to be painted
+        self.pixmap.fill(Qt.transparent)    
 
     def initUI(self):
         self.resize(500, 500)
-        self.move(2000, 300)
+        self.move(2000, 300)    #this decides where the widget is spawned
         self.setWindowTitle('Editor')
-        
-        self.imageLabel = QLabel(self)
-        pixmap = QPixmap('/home/jack/Pictures/3121study.png')
-        self.imageLabel.setPixmap(pixmap)
-        # self.imageLabel.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
-        # self.imageLabel.setScaledContents(True)
 
-        btn = QPushButton('Import Image', self)
+        btn = QPushButton('Import Image', self)     #push button for importing an image, would probably be nicer as a dropdown menu
         btn.clicked.connect(self.importButton)
         btn.setToolTip("Press this button to import an image")
         btn.move(10, 10)
@@ -35,14 +33,16 @@ class App(QWidget):
         filename = self.openFileNameDialog()
         if filename:
             print(filename)
-            pixmap = QPixmap(filename)
-            self.imageLabel.setPixmap(pixmap)
-            self.resize(pixmap.width(), pixmap.height())
+            self.pixmap = QPixmap(filename)     #load whatever filename as the pixmap
+            self.mModified = True       #by setting this true the screen will be resized for the widget
 
-    # def paintEvent(self, filename):
-    #     painter = QPainter(self)
-    #     # im = QImage(filename)
-
+    def paintEvent(self, event):    #this is a callbakc which is constantly called to paint the background
+        if self.mModified:      #checks if we need to resize, could probably go elsewhere
+            print("Painting")
+            self.resize(self.pixmap.width(), self.pixmap.height())
+            self.mModified = False
+        painter = QPainter(self)    #creates a new painter for the widget
+        painter.drawPixmap(0, 0, self.pixmap)       #paints the most recent pixmap onto the widget
 
     def openFileNameDialog(self):   #source https://pythonspot.com/pyqt5-file-dialog/
         options = QFileDialog.Options()     #enumerated options in base 16. For displaying the file explorer
@@ -52,6 +52,12 @@ class App(QWidget):
         fileFilter = "Images (*.png *.xpm .jpg)"
         fileName, _ = QFileDialog.getOpenFileName(self, title, startFolder, fileFilter, options=options)
         return fileName
+
+    def keyPressEvent(self, event):     #just a test piece of code for working out how to register keystrokes
+        gey = event.key()
+        self.func = (None, None)
+        if gey == Qt.Key_M:
+            print("Key 'm' pressed!")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
