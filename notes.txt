@@ -1,3 +1,4 @@
 7/1/19
 Created the repo.
 Help with setup from http://zetcode.com/gui/pyqt5/
+For opening file system https://www.tutorialspoint.com/pyqt/pyqt_qfiledialog_widget.htm
