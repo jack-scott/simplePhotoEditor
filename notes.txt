@@ -1,5 +1,14 @@
 7/1/19
 Created the repo.
 Using python3 as python2 will not be supported beyond 2020
+Have never tried to build anything with a GUI in Python so this is a learning excercise
 Help with setup from http://zetcode.com/gui/pyqt5/
 For opening file system https://pythonspot.com/pyqt5-file-dialog/ 
+Might need to roll back to python 2.7 to make it work with my ROS opencv. Scratch this I dont need openCV at the moment
+
+It appears that the QImage class is better than the QPixmap in instances where you are manipulating and changing the pixels/. This is our use case as we are hoping to roate and skew images
+Here is some documentation regarding that http://blog.qt.io/blog/2009/12/16/qt-graphics-and-performance-an-overview/ 
+
+Trying to work out where to use Qpainter and the paintEvent. This looks to be a callback that updates the display.
+When i use Qpaint does that mean i dont need Qlabel? 
+Also how do QPixmap and Qimage fit into this equation?
