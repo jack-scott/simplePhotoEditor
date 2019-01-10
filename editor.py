@@ -50,6 +50,8 @@ class App(QWidget):
             self.mModified = False
         print("PaintEvent")
         painter = QPainter(self)    #creates a new painter for the widget
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         # painter.rotate(self.rotation)
         painter.setTransform(self.transform)
         painter.drawPixmap(0, self.toolbarH, self.pixmap)       #paints the most recent pixmap onto the widget
