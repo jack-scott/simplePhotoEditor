@@ -38,6 +38,7 @@ class App(QWidget):
             print(filename)
             self.pixmap = QPixmap(filename)     #load whatever filename as the pixmap
             self.transform = QTransform()
+            self.transform.translate(self.pixmap.width/2, self.pixmap.height/2)
             self.rotation = 0
             self.mModified = True       #by setting this true the screen will be resized for the widget
             self.update()
