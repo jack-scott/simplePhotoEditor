@@ -38,7 +38,7 @@ class App(QWidget):
             print(filename)
             self.pixmap = QPixmap(filename)     #load whatever filename as the pixmap
             self.transform = QTransform()
-            self.transform.translate(self.pixmap.width/2, self.pixmap.height/2)
+            # self.transform.translate(self.pixmap.width/2, self.pixmap.height/2)
             self.rotation = 0
             self.mModified = True       #by setting this true the screen will be resized for the widget
             self.update()
@@ -50,6 +50,7 @@ class App(QWidget):
             self.mModified = False
         print("PaintEvent")
         painter = QPainter(self)    #creates a new painter for the widget
+        # painter.rotate(self.rotation)
         painter.setTransform(self.transform)
         painter.drawPixmap(0, self.toolbarH, self.pixmap)       #paints the most recent pixmap onto the widget
 
@@ -74,7 +75,9 @@ class App(QWidget):
     def rotatePixmap(self):
         self.rotation += 10
         # self.transform = QTransform()
-        self.transform.rotate(10)
+        self.transform.translate(self.pixmap.width()/2,self.pixmap.height()/2)
+        self.transform.rotate(1)
+        self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
