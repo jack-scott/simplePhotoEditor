@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 #TODO make this platform independant
+#TODO Make image stick to center of window when resizing
+#TODO Make window resize to fit rotated image
 
 import sys
 from PyQt5.QtCore import QDir, Qt
@@ -65,7 +67,7 @@ class App(QWidget):
         fileName, _ = QFileDialog.getOpenFileName(self, title, startFolder, fileFilter, options=options)
         return fileName
 
-    def keyPressEvent(self, event):     #just a test piece of code for working out how to register keystrokes
+    def keyPressEvent(self, event):     #just a test QPainter.SmoothPixmapTransform, True piece of code for working out how to register keystrokes
         gey = event.key()
         self.func = (None, None)
         if gey == Qt.Key_M:
