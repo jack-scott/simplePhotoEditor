@@ -21,6 +21,7 @@ class App(QWidget):
         self.pixmap.fill(Qt.transparent) 
         self.rotation = 0
         self.transform = QTransform()
+        self.clickOn = False
 
     def initUI(self):
         self.resize(500, 500)
@@ -77,30 +78,25 @@ class App(QWidget):
             self.update()
 
     def mouseMoveEvent(self, event):
-        if event.buttons() != Qt.RightButton:
-            return
-
-        # mimeData = QMimeData()
-
-        # drag = QDrag(self)
-        # drag.setMimeData(mimeData)
-        # drag.setHotSpot(e.pos() - self.rect().topLeft())
-
-        # dropAction = drag.exec_(Qt.MoveAction)
-
+        if self.clickOn:
+            xPos = event.x()
+            self.rotation = xPos
+            print(self.rotation)
 
     def mousePressEvent(self, event):
-      
-        super().mousePressEvent(event)
-        
         if event.button() == Qt.LeftButton:
+            self.clickOn = True
             print('press')
 
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.clickOn = False
+            print('release')
+
     def rotatePixmap(self):
-        self.rotation += 10
         # self.transform = QTransform()
         self.transform.translate(self.pixmap.width()/2,self.pixmap.height()/2)
-        self.transform.rotate(1)
+        self.transform.rotate(self.rotation)
         self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
 
 if __name__ == '__main__':
