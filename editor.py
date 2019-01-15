@@ -3,6 +3,8 @@
 #TODO make this platform independant
 #TODO Make image stick to center of window when resizing
 #TODO Make window resize to fit rotated image
+#TODO Use mouse wheel for zoom
+#TODO Set a translucent rectangle to 
 
 import sys
 from PyQt5.QtCore import QDir, Qt
@@ -19,9 +21,10 @@ class App(QWidget):
         self.initUI()
         self.pixmap = QPixmap(self.size())  #this creates the default pixmap to be painted
         self.pixmap.fill(Qt.transparent) 
-        self.rotation = 0
         self.transform = QTransform()
         self.clickOn = False
+        self.initPos = 0
+        self.lastRot = 0
 
     def initUI(self):
         self.resize(500, 500)
@@ -42,7 +45,6 @@ class App(QWidget):
             self.pixmap = QPixmap(filename)     #load whatever filename as the pixmap
             self.transform = QTransform()
             self.resize(self.pixmap.width(), self.pixmap.height() + self.toolbarH)
-            self.rotation = 0
             self.mModified = True       #by setting this true the screen will be resized for the widget
             self.update()
 
@@ -69,23 +71,38 @@ class App(QWidget):
         return fileName
 
     def keyPressEvent(self, event):     #just a test QPainter.SmoothPixmapTransform, True piece of code for working out how to register keystrokes
-        gey = event.key()
-        self.func = (None, None)
-        if gey == Qt.Key_M:
-            print("Key 'm' pressed!")
-            self.rotatePixmap()
+        getKey = event.key()
+        print(getKey)
+        if getKey == 44:
+            print("Key up pressed!")
+            self.rotatePixmap(1)
             self.mModified = True
             self.update()
+        
+        if getKey == 46:
+            print("Key down pressed!")
+            self.rotatePixmap(-1)
+            self.mModified = True
+            self.update()
+        
 
     def mouseMoveEvent(self, event):
         if self.clickOn:
-            xPos = event.x()
-            self.rotation = xPos
-            print(self.rotation)
+            yPos = event.y()
+            posDiff = yPos - self.initPos
+            if abs(posDiff) > 1:
+                rotation = posDiff 
+                self.initPos = yPos
+                print("rot: " + str(rotation)+ "  ypos: " + str(yPos) +  "  lastrot: " + str(self.lastRot) + "  init: " + str(self.initPos))
+                self.rotatePixmap(rotation)
+                self.mModified = True
+                self.update()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.clickOn = True
+            self.initPos = event.y()
+            self.lastRot = 0
             print('press')
 
     def mouseReleaseEvent(self, event):
@@ -93,10 +110,10 @@ class App(QWidget):
             self.clickOn = False
             print('release')
 
-    def rotatePixmap(self):
+    def rotatePixmap(self, angle):
         # self.transform = QTransform()
         self.transform.translate(self.pixmap.width()/2,self.pixmap.height()/2)
-        self.transform.rotate(self.rotation)
+        self.transform.rotate(angle)
         self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
 
 if __name__ == '__main__':
