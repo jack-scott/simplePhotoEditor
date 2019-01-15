@@ -40,7 +40,7 @@ class App(QWidget):
             print(filename)
             self.pixmap = QPixmap(filename)     #load whatever filename as the pixmap
             self.transform = QTransform()
-            # self.transform.translate(self.pixmap.width/2, self.pixmap.height/2)
+            self.resize(self.pixmap.width(), self.pixmap.height() + self.toolbarH)
             self.rotation = 0
             self.mModified = True       #by setting this true the screen will be resized for the widget
             self.update()
@@ -75,6 +75,26 @@ class App(QWidget):
             self.rotatePixmap()
             self.mModified = True
             self.update()
+
+    def mouseMoveEvent(self, event):
+        if event.buttons() != Qt.RightButton:
+            return
+
+        # mimeData = QMimeData()
+
+        # drag = QDrag(self)
+        # drag.setMimeData(mimeData)
+        # drag.setHotSpot(e.pos() - self.rect().topLeft())
+
+        # dropAction = drag.exec_(Qt.MoveAction)
+
+
+    def mousePressEvent(self, event):
+      
+        super().mousePressEvent(event)
+        
+        if event.button() == Qt.LeftButton:
+            print('press')
 
     def rotatePixmap(self):
         self.rotation += 10
