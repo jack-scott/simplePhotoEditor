@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
+#TODO add drag to move image
 #TODO make this platform independant
 #TODO Make image stick to center of window when resizing
 #TODO Make window resize to fit rotated image
-#TODO Use mouse wheel for zoom
 #TODO Set a translucent rectangle to 
 
 import sys
