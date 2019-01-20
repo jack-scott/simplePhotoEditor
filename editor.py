@@ -2,7 +2,6 @@
 
 #TODO add drag to move image
 #TODO make this platform independant
-#TODO Make image stick to center of window when resizing
 #TODO Make window resize to fit rotated image
 #TODO Set a translucent rectangle to define the boundary of the area to crop
 
@@ -132,7 +131,10 @@ class App(QWidget):
         self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
 
     def scalePixmap(self, scale):
+        self.transform.translate(self.pixmap.width()/2,self.pixmap.height()/2)
         self.transform.scale(scale, scale)
+        self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
