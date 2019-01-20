@@ -4,7 +4,7 @@
 #TODO make this platform independant
 #TODO Make image stick to center of window when resizing
 #TODO Make window resize to fit rotated image
-#TODO Set a translucent rectangle to 
+#TODO Set a translucent rectangle to define the boundary of the area to crop
 
 import sys
 from PyQt5.QtCore import QDir, Qt
