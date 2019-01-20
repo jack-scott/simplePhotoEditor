@@ -25,16 +25,23 @@ class App(QWidget):
         self.initPos = 0
         self.lastRot = 0
         self.zoomLevel = 0
+        self.editingMode = "rotate"
 
     def initUI(self):
         self.resize(500, 500)
         self.move(2000, 300)    #this decides where the widget is spawned
         self.setWindowTitle('Editor')
-        
-        btn = QPushButton('Import Image', self)     #push button for importing an image, would probably be nicer as a dropdown menu
-        btn.clicked.connect(self.importButton)
-        btn.setToolTip("Press this button to import an image")
-        btn.move(self.toolbarCent, 10)
+        btn1 = QPushButton('Import', self)     #push button for importing an image, would probably be nicer as a dropdown menu
+        btn1.clicked.connect(self.importButton)
+        btn1.setToolTip("Press this button to import an image")
+        btn1.move(10, self.toolbarCent)
+
+        btn2 = QPushButton('Rotate', self)     #push button for importing an image, would probably be nicer as a dropdown menu
+        newMode = "rotate"
+        btn2.clicked.connect(lambda x=newMode:self.changeEditingMode(x))
+        btn2.setToolTip("Press this button to allow rotation")
+        btn2.move(100, self.toolbarCent)
+
         self.show()
 
     def importButton(self):
@@ -47,6 +54,10 @@ class App(QWidget):
             self.resize(self.pixmap.width(), self.pixmap.height() + self.toolbarH)
             self.mModified = True       #by setting this true the screen will be resized for the widget
             self.update()
+
+    def changeEditingMode(self, newMode):
+        self.editingMode = newMode
+        print(newMode)
 
     def paintEvent(self, event):    #this is a callbakc which is constantly called to paint the background
         if self.mModified:      #checks if we need to resize, could probably go elsewhere
@@ -103,14 +114,19 @@ class App(QWidget):
     def mouseMoveEvent(self, event):
         if self.clickOn:
             yPos = event.y()
-            posDiff = yPos - self.initPos
-            if abs(posDiff) > 1:
-                rotation = posDiff 
-                self.initPos = yPos
-                print("rot: " + str(rotation)+ "  ypos: " + str(yPos) +  "  lastrot: " + str(self.lastRot) + "  init: " + str(self.initPos))
-                self.rotatePixmap(rotation)
-                self.mModified = True
-                self.update()
+            xPos = event.x()
+            if self.editingMode == "rotate":
+                posDiff = yPos - self.initPos
+                if abs(posDiff) > 1:
+                    rotation = posDiff 
+                    self.initPos = yPos
+                    print("rot: " + str(rotation)+ "  ypos: " + str(yPos) +  "  lastrot: " + str(self.lastRot) + "  init: " + str(self.initPos))
+                    self.rotatePixmap(rotation)
+                    self.mModified = True
+                    self.update()
+            
+            if self.editingMode == "translate":
+                print("Translating")
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
