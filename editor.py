@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 
+#TODO add drag to move image
 #TODO make this platform independant
-#TODO Make image stick to center of window when resizing
 #TODO Make window resize to fit rotated image
-#TODO Use mouse wheel for zoom
-#TODO Set a translucent rectangle to 
+#TODO Set a translucent rectangle to define the boundary of the area to crop
 
 import sys
 from PyQt5.QtCore import QDir, Qt
@@ -25,6 +24,7 @@ class App(QWidget):
         self.clickOn = False
         self.initPos = 0
         self.lastRot = 0
+        self.zoomLevel = 0
 
     def initUI(self):
         self.resize(500, 500)
@@ -84,7 +84,21 @@ class App(QWidget):
             self.rotatePixmap(-1)
             self.mModified = True
             self.update()
+    
+    def wheelEvent(self, event):
+        scaleWheel = event.angleDelta()
+
+        if scaleWheel.y() > 0:
+            scaleFactor = 0.1
+        else:
+            scaleFactor = -0.1
         
+        scaleVal = 1 +  scaleFactor
+        print("Scaling by: " + str(scaleVal))
+
+        self.scalePixmap(scaleVal)
+        self.mModified = True
+        self.update()
 
     def mouseMoveEvent(self, event):
         if self.clickOn:
@@ -115,6 +129,12 @@ class App(QWidget):
         self.transform.translate(self.pixmap.width()/2,self.pixmap.height()/2)
         self.transform.rotate(angle)
         self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
+
+    def scalePixmap(self, scale):
+        self.transform.translate(self.pixmap.width()/2,self.pixmap.height()/2)
+        self.transform.scale(scale, scale)
+        self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
