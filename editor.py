@@ -24,7 +24,7 @@ class App(QWidget):
         self.clickOn = False
         self.initYPos = 0
         self.initXPos = 0
-        self.lastRot = 0
+        self.totalRotation = 0
         self.zoomLevel = 0
         self.editingMode = "rotate"
 
@@ -46,7 +46,6 @@ class App(QWidget):
         btn3.clicked.connect(lambda: self.changeEditingMode("translate"))
         btn3.setToolTip("Press this button to allow dragging")
         btn3.move(210, self.toolbarCent)
-
 
         self.show()
 
@@ -125,21 +124,27 @@ class App(QWidget):
                 posDiff = yPos - self.initYPos
                 if abs(posDiff) > 1:
                     rotation = posDiff 
-                    self.initPos = yPos
-                    print("rot: " + str(rotation)+ "  ypos: " + str(yPos) +  "  lastrot: " + str(self.lastRot) + "  init: " + str(self.initPos))
+                    self.initYPos = yPos
                     self.rotatePixmap(rotation)
                     self.mModified = True
                     self.update()
             
             if self.editingMode == "translate":
-                print("Translating")
+                posDiff = abs(yPos - self.initYPos) + abs(xPos - self.initXPos)
+                if posDiff > 1:
+                    xOffset = xPos - self.initXPos
+                    yOffset = yPos - self.initYPos
+                    self.initXPos = xPos
+                    self.initYPos = yPos
+                    self.translatePixmap(xOffset, yOffset)
+                    self.mModified = True
+                    self.update()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.clickOn = True
             self.initYPos = event.y()
             self.initXPos = event.x()
-            self.lastRot = 0
             print('press')
 
     def mouseReleaseEvent(self, event):
