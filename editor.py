@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 
-#TODO add drag to move image
 #TODO make this platform independant
-#TODO Make window resize to fit rotated image
 #TODO Set a translucent rectangle to define the boundary of the area to crop
 
 import sys
@@ -14,7 +12,6 @@ class App(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.mModified = True
         self.toolbarH = 50
         self.toolbarCent = 10
         self.initUI()
@@ -22,19 +19,31 @@ class App(QWidget):
         self.pixmap.fill(Qt.transparent) 
         self.transform = QTransform()
         self.clickOn = False
-        self.initPos = 0
-        self.lastRot = 0
+        self.initYPos = 0
+        self.initXPos = 0
+        self.totalRotation = 0
         self.zoomLevel = 0
+        self.editingMode = "rotate"
 
     def initUI(self):
         self.resize(500, 500)
         self.move(2000, 300)    #this decides where the widget is spawned
         self.setWindowTitle('Editor')
-        
-        btn = QPushButton('Import Image', self)     #push button for importing an image, would probably be nicer as a dropdown menu
-        btn.clicked.connect(self.importButton)
-        btn.setToolTip("Press this button to import an image")
-        btn.move(self.toolbarCent, 10)
+        btn1 = QPushButton('Import', self)     #push button for importing an image, would probably be nicer as a dropdown menu
+        btn1.clicked.connect(self.importButton)
+        btn1.setToolTip("Press this button to import an image")
+        btn1.move(10, self.toolbarCent)
+
+        btn2 = QPushButton('Rotate', self)     #push button for changin editting mode, would probably be nicer as a dropdown menu
+        btn2.clicked.connect(lambda: self.changeEditingMode("rotate"))
+        btn2.setToolTip("Press this button to allow rotation")
+        btn2.move(110, self.toolbarCent)
+
+        btn3 = QPushButton('Translate', self)     #push button for changin editting mode, would probably be nicer as a dropdown menu
+        btn3.clicked.connect(lambda: self.changeEditingMode("translate"))
+        btn3.setToolTip("Press this button to allow dragging")
+        btn3.move(210, self.toolbarCent)
+
         self.show()
 
     def importButton(self):
@@ -45,14 +54,14 @@ class App(QWidget):
             self.pixmap = QPixmap(filename)     #load whatever filename as the pixmap
             self.transform = QTransform()
             self.resize(self.pixmap.width(), self.pixmap.height() + self.toolbarH)
-            self.mModified = True       #by setting this true the screen will be resized for the widget
+            self.totalRotation = 0
             self.update()
 
+    def changeEditingMode(self, newMode):
+        self.editingMode = newMode
+        print(newMode)
+
     def paintEvent(self, event):    #this is a callbakc which is constantly called to paint the background
-        if self.mModified:      #checks if we need to resize, could probably go elsewhere
-            print("Painting")
-            self.resize(self.pixmap.width(), self.pixmap.height() + self.toolbarH)
-            self.mModified = False
         print("PaintEvent")
         painter = QPainter(self)    #creates a new painter for the widget
         painter.setRenderHint(QPainter.Antialiasing, True)
@@ -76,47 +85,51 @@ class App(QWidget):
         if getKey == 44:
             print("Key up pressed!")
             self.rotatePixmap(1)
-            self.mModified = True
             self.update()
         
         if getKey == 46:
             print("Key down pressed!")
             self.rotatePixmap(-1)
-            self.mModified = True
             self.update()
     
     def wheelEvent(self, event):
         scaleWheel = event.angleDelta()
-
         if scaleWheel.y() > 0:
             scaleFactor = 0.1
         else:
             scaleFactor = -0.1
-        
         scaleVal = 1 +  scaleFactor
         print("Scaling by: " + str(scaleVal))
-
         self.scalePixmap(scaleVal)
-        self.mModified = True
         self.update()
 
     def mouseMoveEvent(self, event):
         if self.clickOn:
             yPos = event.y()
-            posDiff = yPos - self.initPos
-            if abs(posDiff) > 1:
-                rotation = posDiff 
-                self.initPos = yPos
-                print("rot: " + str(rotation)+ "  ypos: " + str(yPos) +  "  lastrot: " + str(self.lastRot) + "  init: " + str(self.initPos))
-                self.rotatePixmap(rotation)
-                self.mModified = True
-                self.update()
+            xPos = event.x()
+            if self.editingMode == "rotate":
+                posDiff = yPos - self.initYPos
+                if abs(posDiff) > 1:
+                    rotation = posDiff 
+                    self.initYPos = yPos
+                    self.rotatePixmap(rotation)
+                    self.update()
+            
+            if self.editingMode == "translate":
+                posDiff = abs(yPos - self.initYPos) + abs(xPos - self.initXPos)
+                if posDiff > 1:
+                    xOffset = xPos - self.initXPos
+                    yOffset = yPos - self.initYPos
+                    self.initXPos = xPos
+                    self.initYPos = yPos
+                    self.translatePixmap(xOffset, yOffset)
+                    self.update()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.clickOn = True
-            self.initPos = event.y()
-            self.lastRot = 0
+            self.initYPos = event.y()
+            self.initXPos = event.x()
             print('press')
 
     def mouseReleaseEvent(self, event):
@@ -125,7 +138,8 @@ class App(QWidget):
             print('release')
 
     def rotatePixmap(self, angle):
-        # self.transform = QTransform()
+        self.totalRotation += angle
+        print(self.totalRotation)
         self.transform.translate(self.pixmap.width()/2,self.pixmap.height()/2)
         self.transform.rotate(angle)
         self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
@@ -135,6 +149,12 @@ class App(QWidget):
         self.transform.scale(scale, scale)
         self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
 
+    def translatePixmap(self, xOffset, yOffset):
+        self.transform.translate(self.pixmap.width()/2,self.pixmap.height()/2)
+        self.transform.rotate(-self.totalRotation)
+        self.transform.translate(xOffset, yOffset)
+        self.transform.rotate(self.totalRotation)
+        self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
