@@ -22,7 +22,8 @@ class App(QWidget):
         self.pixmap.fill(Qt.transparent) 
         self.transform = QTransform()
         self.clickOn = False
-        self.initPos = 0
+        self.initYPos = 0
+        self.initXPos = 0
         self.lastRot = 0
         self.zoomLevel = 0
         self.editingMode = "rotate"
@@ -36,11 +37,16 @@ class App(QWidget):
         btn1.setToolTip("Press this button to import an image")
         btn1.move(10, self.toolbarCent)
 
-        btn2 = QPushButton('Rotate', self)     #push button for importing an image, would probably be nicer as a dropdown menu
-        newMode = "rotate"
-        btn2.clicked.connect(lambda x=newMode:self.changeEditingMode(x))
+        btn2 = QPushButton('Rotate', self)     #push button for changin editting mode, would probably be nicer as a dropdown menu
+        btn2.clicked.connect(lambda: self.changeEditingMode("rotate"))
         btn2.setToolTip("Press this button to allow rotation")
-        btn2.move(100, self.toolbarCent)
+        btn2.move(110, self.toolbarCent)
+
+        btn3 = QPushButton('Translate', self)     #push button for changin editting mode, would probably be nicer as a dropdown menu
+        btn3.clicked.connect(lambda: self.changeEditingMode("translate"))
+        btn3.setToolTip("Press this button to allow dragging")
+        btn3.move(210, self.toolbarCent)
+
 
         self.show()
 
@@ -116,7 +122,7 @@ class App(QWidget):
             yPos = event.y()
             xPos = event.x()
             if self.editingMode == "rotate":
-                posDiff = yPos - self.initPos
+                posDiff = yPos - self.initYPos
                 if abs(posDiff) > 1:
                     rotation = posDiff 
                     self.initPos = yPos
@@ -131,7 +137,8 @@ class App(QWidget):
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.clickOn = True
-            self.initPos = event.y()
+            self.initYPos = event.y()
+            self.initXPos = event.x()
             self.lastRot = 0
             print('press')
 
@@ -150,6 +157,12 @@ class App(QWidget):
         self.transform.translate(self.pixmap.width()/2,self.pixmap.height()/2)
         self.transform.scale(scale, scale)
         self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
+
+    def translatePixmap(self, xOffset, yOffset):
+        self.transform.translate(self.pixmap.width()/2,self.pixmap.height()/2)
+        self.transform.translate(xOffset, yOffset)
+        self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
+
 
 
 if __name__ == '__main__':
