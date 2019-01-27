@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 
-#TODO add drag to move image
 #TODO make this platform independant
-#TODO Make window resize to fit rotated image
 #TODO Set a translucent rectangle to define the boundary of the area to crop
 
 import sys
@@ -14,7 +12,6 @@ class App(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.mModified = True
         self.toolbarH = 50
         self.toolbarCent = 10
         self.initUI()
@@ -57,7 +54,7 @@ class App(QWidget):
             self.pixmap = QPixmap(filename)     #load whatever filename as the pixmap
             self.transform = QTransform()
             self.resize(self.pixmap.width(), self.pixmap.height() + self.toolbarH)
-            self.mModified = True       #by setting this true the screen will be resized for the widget
+            self.totalRotation = 0
             self.update()
 
     def changeEditingMode(self, newMode):
@@ -65,10 +62,6 @@ class App(QWidget):
         print(newMode)
 
     def paintEvent(self, event):    #this is a callbakc which is constantly called to paint the background
-        if self.mModified:      #checks if we need to resize, could probably go elsewhere
-            print("Painting")
-            self.resize(self.pixmap.width(), self.pixmap.height() + self.toolbarH)
-            self.mModified = False
         print("PaintEvent")
         painter = QPainter(self)    #creates a new painter for the widget
         painter.setRenderHint(QPainter.Antialiasing, True)
@@ -92,28 +85,22 @@ class App(QWidget):
         if getKey == 44:
             print("Key up pressed!")
             self.rotatePixmap(1)
-            self.mModified = True
             self.update()
         
         if getKey == 46:
             print("Key down pressed!")
             self.rotatePixmap(-1)
-            self.mModified = True
             self.update()
     
     def wheelEvent(self, event):
         scaleWheel = event.angleDelta()
-
         if scaleWheel.y() > 0:
             scaleFactor = 0.1
         else:
             scaleFactor = -0.1
-        
         scaleVal = 1 +  scaleFactor
         print("Scaling by: " + str(scaleVal))
-
         self.scalePixmap(scaleVal)
-        self.mModified = True
         self.update()
 
     def mouseMoveEvent(self, event):
@@ -126,7 +113,6 @@ class App(QWidget):
                     rotation = posDiff 
                     self.initYPos = yPos
                     self.rotatePixmap(rotation)
-                    self.mModified = True
                     self.update()
             
             if self.editingMode == "translate":
@@ -137,7 +123,6 @@ class App(QWidget):
                     self.initXPos = xPos
                     self.initYPos = yPos
                     self.translatePixmap(xOffset, yOffset)
-                    self.mModified = True
                     self.update()
 
     def mousePressEvent(self, event):
@@ -153,7 +138,8 @@ class App(QWidget):
             print('release')
 
     def rotatePixmap(self, angle):
-        # self.transform = QTransform()
+        self.totalRotation += angle
+        print(self.totalRotation)
         self.transform.translate(self.pixmap.width()/2,self.pixmap.height()/2)
         self.transform.rotate(angle)
         self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
@@ -165,10 +151,10 @@ class App(QWidget):
 
     def translatePixmap(self, xOffset, yOffset):
         self.transform.translate(self.pixmap.width()/2,self.pixmap.height()/2)
+        self.transform.rotate(-self.totalRotation)
         self.transform.translate(xOffset, yOffset)
+        self.transform.rotate(self.totalRotation)
         self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
-
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
