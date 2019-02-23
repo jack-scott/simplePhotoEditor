@@ -170,7 +170,7 @@ class App(QWidget):
         print("Saving image")
         print(transformed.save(parsedFname[0] + '_edit.png', 'png', -1))       #this saves the pixmap in its transformed state
 
-
+  
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
