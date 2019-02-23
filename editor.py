@@ -25,6 +25,7 @@ class App(QWidget):
         self.totalRotation = 0
         self.zoomLevel = 0
         self.editingMode = "rotate"
+        self.filename = ""
 
     def initUI(self):
         self.resize(500, 500)
@@ -45,6 +46,11 @@ class App(QWidget):
         btn3.setToolTip("Press this button to allow dragging")
         btn3.move(210, self.toolbarCent)
 
+        btn4 = QPushButton('Save', self)     #push button for saving image
+        btn4.clicked.connect(self.saveImage)
+        btn4.setToolTip("Press this button to save image")
+        btn4.move(310, self.toolbarCent)
+
         self.show()
 
     def importButton(self):
@@ -52,6 +58,7 @@ class App(QWidget):
         filename = self.openFileNameDialog()
         if filename:
             print(filename)
+            self.filename = filename
             self.pixmap = QPixmap(filename)     #load whatever filename as the pixmap
             self.transform = QTransform()
             self.resize(self.pixmap.width(), self.pixmap.height() + self.toolbarH)
@@ -156,6 +163,13 @@ class App(QWidget):
         self.transform.translate(xOffset, yOffset)
         self.transform.rotate(self.totalRotation)
         self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
+
+    def saveImage(self):
+        screen = QApplication.primaryScreen()
+        grab = screen.grabWindow(self.winId())
+        print("Saving image")
+        parsedFname = self.filename.split(".")
+        grab.save(parsedFname[0] + '_edit.png', 'png')  #might want to save in origional filetype?
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
