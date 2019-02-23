@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+#TODO add file saving
 #TODO make this platform independant
 #TODO Set a translucent rectangle to define the boundary of the area to crop
 
@@ -24,6 +25,7 @@ class App(QWidget):
         self.totalRotation = 0
         self.zoomLevel = 0
         self.editingMode = "rotate"
+        self.filename = ""
 
     def initUI(self):
         self.resize(500, 500)
@@ -44,6 +46,11 @@ class App(QWidget):
         btn3.setToolTip("Press this button to allow dragging")
         btn3.move(210, self.toolbarCent)
 
+        btn4 = QPushButton('Save', self)     #push button for saving image
+        btn4.clicked.connect(self.saveButton)
+        btn4.setToolTip("Press this button to save image")
+        btn4.move(310, self.toolbarCent)
+
         self.show()
 
     def importButton(self):
@@ -51,11 +58,22 @@ class App(QWidget):
         filename = self.openFileNameDialog()
         if filename:
             print(filename)
+            self.filename = filename
             self.pixmap = QPixmap(filename)     #load whatever filename as the pixmap
             self.transform = QTransform()
             self.resize(self.pixmap.width(), self.pixmap.height() + self.toolbarH)
             self.totalRotation = 0
             self.update()
+    
+    def saveButton(self):
+        filename = self.saveFileDialog()
+        filetype = filename.split(".")
+        filetype = filetype[len(filetype) - 1]
+        success = self.savePixmap(filename, filetype)
+        if success:
+            print("File successfully saved!")
+        else:
+            print("Error, could not save file")
 
     def changeEditingMode(self, newMode):
         self.editingMode = newMode
@@ -77,6 +95,15 @@ class App(QWidget):
         startFolder = "/home/jack/Pictures/" # "" chooses the last folder you were in
         fileFilter = "Images (*.png *.xpm .jpg)"
         fileName, _ = QFileDialog.getOpenFileName(self, title, startFolder, fileFilter, options=options)
+        return fileName
+    
+    def saveFileDialog(self):   #source https://pythonspot.com/pyqt5-file-dialog/
+        options = QFileDialog.Options()     #enumerated options in base 16. For displaying the file explorer
+        options |= QFileDialog.DontUseNativeDialog      #native dialog is used by default, this turns it off
+        title = "Save image"
+        startFolder = "/home/jack/Pictures/" # "" chooses the last folder you were in
+        fileFilter = "Images (*.png *.xpm .jpg)"
+        fileName, _ = QFileDialog.getSaveFileName(self, title, startFolder, fileFilter, options=options)
         return fileName
 
     def keyPressEvent(self, event):     #just a test QPainter.SmoothPixmapTransform, True piece of code for working out how to register keystrokes
@@ -155,6 +182,10 @@ class App(QWidget):
         self.transform.translate(xOffset, yOffset)
         self.transform.rotate(self.totalRotation)
         self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
+
+    def savePixmap(self, filename, filetype):
+        transformed = self.pixmap.transformed(self.transform, 0)
+        return transformed.save(filename, filetype, -1)       #this saves the pixmap in its transformed state
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
