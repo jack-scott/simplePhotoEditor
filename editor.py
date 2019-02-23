@@ -165,11 +165,12 @@ class App(QWidget):
         self.transform.translate(-self.pixmap.width()/2, -self.pixmap.height()/2)
 
     def saveImage(self):
-        screen = QApplication.primaryScreen()
-        grab = screen.grabWindow(self.winId())
-        print("Saving image")
         parsedFname = self.filename.split(".")
-        grab.save(parsedFname[0] + '_edit.png', 'png')  #might want to save in origional filetype?
+        transformed = self.pixmap.transformed(self.transform, 0)
+        print("Saving image")
+        print(transformed.save(parsedFname[0] + '_edit.png', 'png', -1))       #this saves the pixmap in its transformed state
+
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
