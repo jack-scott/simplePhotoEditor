@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+#TODO add file saving
 #TODO make this platform independant
 #TODO Set a translucent rectangle to define the boundary of the area to crop
 
