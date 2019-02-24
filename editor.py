@@ -2,6 +2,8 @@
 
 #TODO make this platform independant
 #TODO Set a translucent rectangle to define the boundary of the area to crop
+#TODO Make this rectangle able to be regrabbed
+#TODO Make the crop button a toggle
 #TODO seperate the translate, rotate and scale in the transform toa llow keeping origional image res 
 
 import sys
@@ -148,7 +150,7 @@ class App(QWidget):
         if self.clickOn:
             yPos = event.y()
             xPos = event.x()
-            if self.editingMode == "rotate":
+            if self.editingMode == "rotate" and not self.cropSelect:
                 posDiff = yPos - self.initYPos
                 if abs(posDiff) > 1:
                     rotation = posDiff 
@@ -156,7 +158,7 @@ class App(QWidget):
                     self.rotatePixmap(rotation)
                     self.update()
             
-            if self.editingMode == "translate":
+            if self.editingMode == "translate" and not self.cropSelect:
                 posDiff = abs(yPos - self.initYPos) + abs(xPos - self.initXPos)
                 if posDiff > 1:
                     xOffset = xPos - self.initXPos
@@ -169,6 +171,7 @@ class App(QWidget):
             if self.cropSelect == True:
                 self.currentXPos = xPos
                 self.currentYPos = yPos
+                self.update()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
