@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 
-#TODO add file saving
 #TODO make this platform independant
 #TODO Set a translucent rectangle to define the boundary of the area to crop
+#TODO seperate the translate, rotate and scale in the transform toa llow keeping origional image res 
 
 import sys
-from PyQt5.QtCore import QDir, Qt
+from PyQt5.QtCore import QDir, Qt, QRect
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QFileDialog, QLabel, QSizePolicy
 from PyQt5.QtGui import QPainter, QImage, QPaintEvent, QPixmap, QKeyEvent, QTransform
 
@@ -22,10 +22,13 @@ class App(QWidget):
         self.clickOn = False
         self.initYPos = 0
         self.initXPos = 0
+        self.currentXPos = 0
+        self.currentYPos = 0
         self.totalRotation = 0
         self.zoomLevel = 0
         self.editingMode = "rotate"
         self.filename = ""
+        self.cropSelect = False
 
     def initUI(self):
         self.resize(500, 500)
@@ -51,6 +54,11 @@ class App(QWidget):
         btn4.setToolTip("Press this button to save image")
         btn4.move(310, self.toolbarCent)
 
+        btn5 = QPushButton('Crop', self)     #push button for saving image
+        btn5.clicked.connect(self.cropButton)
+        btn5.setToolTip("Press this button to crop image")
+        btn5.move(410, self.toolbarCent)
+
         self.show()
 
     def importButton(self):
@@ -75,6 +83,10 @@ class App(QWidget):
         else:
             print("Error, could not save file")
 
+    def cropButton(self):
+        self.cropSelect = True
+
+
     def changeEditingMode(self, newMode):
         self.editingMode = newMode
         print(newMode)
@@ -86,6 +98,8 @@ class App(QWidget):
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         # painter.rotate(self.rotation)
         painter.setTransform(self.transform)
+        if self.cropSelect == True:
+            painter.drawRect(QRect(self.initXPos, self.initYPos, self.currentXPos, self.currentYPos))
         painter.drawPixmap(0, self.toolbarH, self.pixmap)       #paints the most recent pixmap onto the widget
 
     def openFileNameDialog(self):   #source https://pythonspot.com/pyqt5-file-dialog/
@@ -152,11 +166,17 @@ class App(QWidget):
                     self.translatePixmap(xOffset, yOffset)
                     self.update()
 
+            if self.cropSelect == True:
+                self.currentXPos = xPos
+                self.currentYPos = yPos
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.clickOn = True
             self.initYPos = event.y()
             self.initXPos = event.x()
+            self.currentYPos = event.y()
+            self.currentXPos = event.x()
             print('press')
 
     def mouseReleaseEvent(self, event):
@@ -186,6 +206,7 @@ class App(QWidget):
     def savePixmap(self, filename, filetype):
         transformed = self.pixmap.transformed(self.transform, 0)
         return transformed.save(filename, filetype, -1)       #this saves the pixmap in its transformed state
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
