@@ -25,7 +25,7 @@ class App(QWidget):
         self.initYPos = 0
         self.initXPos = 0
         self.currentXPos = 0
-        self.currentYPos = 0
+        self.currentYPos = 0 
         self.totalRotation = 0
         self.zoomLevel = 0
         self.editingMode = "rotate"
